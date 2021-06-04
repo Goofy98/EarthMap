@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <div ref="earthContainer" style="width: 100%; height: 100%">
+    <div ref="earthContainer" style="width: 100%; height: 100%;overflow: hidden;position: relative;">
     </div>
   </div>
 </template>
@@ -21,7 +21,7 @@ export default {
           _bgImagery: undefined,
           _viewer: undefined,
           _handler: undefined,
-          initChildrenLength: undefined
+          _initChildrenLength: undefined,
       };
   },
   mounted() {
@@ -42,18 +42,21 @@ export default {
   methods: {
     earthInit() {
       this._earth = new XE.Earth(this.$refs.earthContainer);
-      this._earth.interaction.picking.enabled = true;
+      // this._earth.interaction.picking.enabled = true;
       this._earth.weather.atmosphere.enabled = false;
       this._viewer = this._earth.czm.viewer;
-      // this._viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
-      //     url: 'http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-      //     subdomains: ['a', 'b', 'c', 'd', 'e'],
-      // }));
+      // var op = new TerrainEffect()
+      console.log(this._viewer.scene.globe,'this._viewer.scene.globe')
+      // this._viewer.scene.screenSpaceCameraController.minimumZoomDistance = 2500;
+      // this._viewer.scene.screenSpaceCameraController.maximumZoomDistance = 10000;
+      // this._earth.terrainEffect.subSurfaceEnabled = true
+      this._earth.terrainEffect.backFaceAlpha = 0.5
+      // this._earth.terrainEffect.baseColor = [1,0,0,0.2]
       var fsBody = `
             // 可以修改的参数
             // 注意shader中写浮点数是，一定要带小数点，否则会报错，比如0需要写成0.0，1要写成1.0
             float _baseHeight = 0.0; // 物体的基础高度，需要修改成一个合适的建筑基础高度
-            float _heightRange = 60.0; // 高亮的范围(_baseHeight ~ _baseHeight + _heightRange) 默认是 0-60米
+            float _heightRange = 20.0; // 高亮的范围(_baseHeight ~ _baseHeight + _heightRange) 默认是 0-60米
             float _glowRange = 300.0; // 光环的移动范围(高度)
 
             // 建筑基础色
@@ -78,13 +81,71 @@ export default {
                         "name": "数字工厂-外部简模",
                         "maximumScreenSpaceError": 8,
                         "skipLevelOfDetail": false,
-                        "url": "//lab.earthsdk.com/model/27af3f70003311eaae02359b3e5d0653/tileset.json",
+                        "url": "./3dguicheng/tileset.json",
                         "xbsjStyle": "var style = {\n    color: \"vec4(0, 0.5, 1.0,1)\"\n}",
                         "xbsjCustomShader": {
                             "fsBody": fsBody,
                         }
                     }
                 },
+                // {
+                //     "czmObject": {
+                //         "xbsjType": "Tileset",
+                //         "name": "倾斜单体测试",
+                //         "url": "https://lab.earthsdk.com/model/de2a2300ac2d11e99dbd8fd044883638/tileset.json",
+                //         "xbsjUseOriginTransform": false,
+                //         "xbsjPosition": [
+                //             1.9750513144708197, 0.4017685270578369,
+                //             0
+                //         ],
+                //         "xbsjClippingPlanes": {},
+                //         "xbsjCustomShader": {}
+                //     }
+                // },
+                {
+                    "czmObject": {
+                        "xbsjType": "Tileset",
+                        "name": "倾斜单体测试2",
+                        "url": "./hyt/tileset.json",
+                        "xbsjUseOriginTransform": false,
+                        "xbsjPosition": [
+                            113.16485344589788*Math.PI/180,
+                            23.01902458082195*Math.PI/180,
+                            0
+                        ],
+                        "xbsjClippingPlanes": {},
+                        "xbsjCustomShader": {}
+                    }
+                },
+                {
+                    "czmObject": {
+                        "xbsjType": "Imagery",
+                        "xbsjGuid": "412ae4fb-0da4-4c3c-9273-f358f6bc0c14",
+                        "name": "本地地图配置",
+                        "xbsjImageryProvider": {
+                            "XbsjImageryProvider": {
+                                "url": "http://172.18.28.85:8081/blueMap/{z}/{x}/{y}.png",
+                                "srcCoordType": "GCJ02",
+                                "dstCoordType": "WGS84",
+                                "maximumLevel": 15
+                            },
+                        }
+                    }
+                },
+                // {
+                //     "ref": "tileset3",
+                //     "czmObject": {
+                //         "xbsjType": "Tileset",
+                //         "name": "数字工厂-内部简模",
+                //         "maximumScreenSpaceError": 8,
+                //         "skipLevelOfDetail": false,
+                //         "url": "//lab.earthsdk.com/model/1b91bf10003311eaae02359b3e5d0653/tileset.json",
+                //         "xbsjStyle": "var style = {\n    color: \"vec4(0, 0.5, 1.0,1)\"\n}",
+                //         "xbsjCustomShader": {
+                //             "fsBody": fsBody,
+                //         }
+                //     }
+                // },
               // {
               //     "czmObject": {
               //       "xbsjType": "Tileset",
@@ -103,28 +164,27 @@ export default {
               //       }
               //   }
               // },
-                {
-                    "czmObject": {
-                        "xbsjType": "Model",
-                        "url": "./model/car.gltf",
-                        "minimumPixelSize": 128,
-                        "maximumScale": 2000,
-                        "xbsjPosition": [
-                            2.031362151104802,
-                            0.6963997735829957,
-                            0
-                        ]
-                    }
-                }
+                // {
+                //     "czmObject": {
+                //         "xbsjType": "Model",
+                //         "url": "./model/car.gltf",
+                //         "minimumPixelSize": 128,
+                //         "maximumScale": 1000,
+                //         "xbsjStyle": "var style = {\n    color: \"vec4(0, 0.5, 1.0,1)\"\n}",
+                //         "xbsjCustomShader": {
+                //             "fsBody": fsBody,
+                //         },
+                //         "xbsjPosition": [
+                //             2.031362151104802,
+                //             0.6963997735829957,
+                //             0
+                //         ]
+                //     }
+                // }
           ]
       }
-      this._earth.camera.position = [2.03164809508113, 0.6966244295326638, 1040.2661065255693];
-      this._earth.camera.rotation = [3.972507149093452, -0.5205829134298061, 6.28037637077842];
-      // this._earth.camera.position = [2.1210391698749964, 0.544944336488856, 822.8789229124824];
-      // this._earth.camera.rotation = [5.190679265289419, -0.41493986255762305, 6.280299562599916];
-      // this._earth.camera.position = [2.0318085713332255, 0.6906484565329043, 55792.896435757175];
-      // this._earth.camera.rotation = [6.128290204901391, -1.1520461574349783, 6.283181299380239];
-      this.initChildrenLength = this._earth.sceneTree.root.children.length;
+      this._earth.camera.flyAround([113.16485344589788*Math.PI/180, 23.01902458082195*Math.PI/180, 0], 3000, [0, -Math.PI / 5, 0], 0, 3.14/50);
+      this._initChildrenLength = this._earth.sceneTree.root.children.length;
       this._handler = new Cesium.ScreenSpaceEventHandler(this._viewer.scene.canvas);
       this._handler.setInputAction((click)=>{
         console.log(click,'click')
@@ -153,22 +213,43 @@ export default {
       let lineP2 = [
         [
           [2.0314582606146265, 0.6963013545253198, 0],
-          [2.031469244667223, 0.6963946255077302, 0],
-          [2.031362151104802, 0.6963997735829957, 0],
-          [2.031377732833194, 0.696498381680946, 0],
           [2.0312904184756837, 0.6965021993229831, 0],
+          [2.031280927527682, 0.6965027658709431, 0],
+          [2.0312883181050787, 0.6962954046419887, 0]
         ],
-        // [
-        //   [2.0314632606146265, 0.6963013545253198, 0],
-        //   [2.031474244667223, 0.6963946255077302, 0],
-        //   [2.031367151104802, 0.6963997735829957, 0],
-        //   [2.031382732833194, 0.696498381680946, 0],
-        //   [2.0312954184756837, 0.6965021993229831, 0],
-        // ],
+        [
+          [2.0314451091586996, 0.6963005251934097, 0],
+          [2.031533829305591, 0.6963593390188141, 0],
+          [2.0311947537645976, 0.6963673167780681, 0]
+        ],
+        [
+          [2.0312883181050787, 0.6962954046419887, 0],
+          [2.031334158530961, 0.6962951101442552, 0]
+        ],
+        [
+          [2.0312883181050787, 0.6962954046419887, 0],
+          [2.0312613156097665, 0.6962955668375239, 0]
+        ],
+        [
+          [2.0312883181050787, 0.6962954046419887, 0],
+          [2.031286072645102, 0.696270723792862, 0]
+        ],
+        [
+          [2.0312883181050787, 0.6962954046419887, 0],
+          [2.03131407025466, 0.6962698626347447, 0]
+        ],
+        [
+          [2.0312883181050787, 0.6962954046419887, 0],
+          [2.0312646650504167, 0.6962689922729534, 0]
+        ],
       ]
-      this.createODLines(this._earth,lineP)
-      this.createODLines(this._earth,lineP2)
+      console.log(lineData.lineData,'lineData.lineData')
+      // this.createODLines(this._earth,lineP)
+      this.createODLines(this._earth,lineData.lineData,1.0)
       this.createODLines3(this._earth)
+      this.createLabel(this._earth,[2.0312493783960295, 0.6963644385110634, 60.48494215110062],'分解器')
+      this.createLabel(this._earth,[2.0311858042064648, 0.6964061596762033, 50.89815052160368] ,'充电池')
+      this.createLabel(this._earth,[2.0313130105630943, 0.6963586278435581, 75.01305752468431],'小烟冲')
       let pointData = [
           [[2.1202907282192385, 0.5450835546419367, 1.5], [0.5, 0.8, 1, 2], [50, 50, 1]],
           [[2.120125294340532, 0.5453135338319917, 1.5], [0.5, 0.8, 1, 2], [60, 60, 1.2]],
@@ -181,11 +262,11 @@ export default {
           [[2.1207404597752664, 0.5451854942212021, 1.5], [0.5, 0.8, 1, 2], [50, 50, 1]],
       ]
       let pointE = {
-        longitude: 2.120632655403052*180/Math.PI,
-        latitude: 0.5451807133365316*180/Math.PI,
-        height: 310
+        longitude: 2.0312540197625566*180/Math.PI,
+        latitude: 0.6963660035982588*180/Math.PI,
+        height: 100
       }
-      this.addPoint(this._earth,pointE)
+      // this.addPoint(this._earth,pointE)
       pointData.forEach(([p, c, s]) => {
           this.createBasePoint(this._earth, p, c, s);
       });
@@ -258,15 +339,15 @@ export default {
       var mapvLayer = XE.mixins.mapVLayer(this._viewer, dataSet, options);
     },
     // 轨迹线
-    createODLines(earth,p) {
+    createODLines(earth,p,time) {
         const odlines = new XE.Obj.ODLines(earth);
-        odlines.color = [1,1, 1, 1];
+        odlines.color = [1,1, 1, 0.5];
 
         var busLines = [];
         // p.push(...p, ...p); // 重复路径3次
 
-        let timeDuration = 3.0;
-        let moveBaseDuration = 2.0;
+        let timeDuration = time + 1;
+        let moveBaseDuration = time;
         let times = 0
         busLines = p.map(e => {
             console.log(Math.random(),'console.log(Math.random())')
@@ -275,7 +356,7 @@ export default {
                 positions: e.map(ee => [ee[0], ee[1]]),
                 color: [1, 1, 1, 5],
                 width: 2.0,
-                startTime: 0,
+                startTime: timeDuration * Math.random(),
                 duration: moveBaseDuration + 1.0 * Math.random()
             }
         });
@@ -606,7 +687,7 @@ export default {
     // 标题信息
     addPoint(earth, e) {
         var pinBuilder = new Cesium.XbsjPinBuilder();
-        console.log(pinBuilder,'pinBuilder')
+        console.log(Cesium.LabelStyle.FILL_AND_OUTLINE,'pinBuilder')
         const entity = earth.czm.viewer.entities.add({
             // name: e.Equipment_Name,
             position: Cesium.Cartesian3.fromDegrees(e.longitude, e.latitude, e.height),
@@ -631,18 +712,33 @@ export default {
                 show: true,
             },
             label: {
-                text:  'test',
+                text:  'Vvsf',
                 style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-                font: '20px 微软雅黑',
+                font: '14px 微软雅黑',
                 fillColor: Cesium.Color.WHITE,
                 outlineColor: new Cesium.Color(1, 1, 1, 1),
-                outlineWidth: 2,
+                outlineWidth: 1,
                 scale: 1,
                 verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                 horizontalOrigin: Cesium.HorizontalOrigin.CENTER
             }
         });
         return entity;
+    },
+    // 创建信息
+    createLabel(earth,position,message) {
+        let p = new XE.Obj.Pin(earth);
+        p.position = position
+        p.show = false;
+        const labelDiv = document.createElement('div');
+        labelDiv.className = "boxMessage"
+        labelDiv.innerText = message
+        earth.czm.viewer.container.appendChild(labelDiv);
+        // p.winPos 为一个含有4个元素的数组，分别表示[left, top, right, bottom]
+        XE.MVVM.watch(() => [...p.winPos], winPos => {
+            labelDiv.style.left = `${winPos[0]-labelDiv.clientWidth/2}px`;
+            labelDiv.style.bottom = `${winPos[3]}px`;
+        });
     }
   },
   // 1.2 资源销毁
@@ -656,9 +752,10 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
 .hello {
-  width: 100%;
+  width: 80%;
   height: 600px;
   background: #000;
+  margin: 0 auto;
 }
 h3 {
   margin: 40px 0 0;
@@ -673,5 +770,23 @@ li {
 }
 a {
   color: #42b983;
+}
+.dialog {
+  position: absolute;
+  width: 80px;
+  min-height: 60px;
+  color: white;
+  background-size: 100% 100%;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+</style>
+<style lang="css">
+.boxMessage {
+  position: absolute;
+  padding: 10px 20px;
+  border: 1px solid #00ffff;
+  color: #00ffff;
 }
 </style>
